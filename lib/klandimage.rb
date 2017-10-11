@@ -15,23 +15,26 @@ module KlandImage
       'https://kland.smilebasicsource.com/uploadimage',
       {image: image, bucket: bucket}
     )
+    
     if response =~ %r{http(s)?://kland.smilebasicsource.com/i/}
       return respsonse.gsub('http://', 'https://')
     else
-      raise Error.new(response)
+      raise response
     end
   end
 
   def self.list(bucket: '', page: 1, per_page: 20)
-    # get image list
-  end
+    response = RestClient.get(
+      'https://kland/smilebasicsource.com/image',
+      {bucket: bucket, page: page, ipp: per_page, asJSON: true}
+    )
 
-  # generic error class
-  class Error < StandardError
-    attr_reader :message
-    
-    def initialize(msg)
-      @message = msg
-    end
+    # awful hack to prevent php garbage
+    start = response =~ /{/
+    raise response unless start
+    response = response[start..-1]
+
+    obj = JSON.parse(response)
+    return obj
   end
 end
