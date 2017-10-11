@@ -23,10 +23,10 @@ module KlandImage
     end
   end
 
-  def self.list(bucket: '', page: 1, per_page: 20)
+  def self.list(bucket: '', page: 1, ipp: 20)
     response = RestClient.get(
       'https://kland/smilebasicsource.com/image',
-      {bucket: bucket, page: page, ipp: per_page, asJSON: true}
+      {bucket: bucket, page: page, ipp: ipp, asJSON: true}
     )
 
     # awful hack to prevent php garbage
@@ -35,6 +35,10 @@ module KlandImage
     response = response[start..-1]
 
     obj = JSON.parse(response)
+
+    # eliminate potential name garbage
+    obj['bucket'] = bucket
+
     return obj
   end
 end
